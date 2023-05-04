@@ -1,25 +1,4 @@
-/*********************************************************************************************************************
- *  Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.                                           *
- *                                                                                                                    *
- *  Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance    *
- *  with the License. A copy of the License is located at                                                             *
- *                                                                                                                    *
- *      http://www.apache.org/licenses/LICENSE-2.0                                                                    *
- *                                                                                                                    *
- *  or in the 'license' file accompanying this file. This file is distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES *
- *  OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions    *
- *  and limitations under the License.                                                                                *
- *********************************************************************************************************************/
-
-/**
- * @author Solution Builders
- */
-
 'use strict';
-
-/**
- * Lib
- */
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -27,12 +6,18 @@ const app = express();
 const router = express.Router();
 const generateCustomKeysAndCertificate = require('./custom_certificate.js');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const API_KEY_NAME = process.env.API_KEY_NAME;
 const API_KEY_VALUE = process.env.API_KEY_VALUE;
+// TLS_PASSTHROUGH:
+// if true, the load balancer (NGINX, AWS ALB) will pass TCP traffic to the instance without decrypting it.
+// if false, the load balancer decrypts the traffic and forwards it to the instance as HTTP.
+const TLS_PASSTHROUGH = process.env.TLS_PASSTHROUGH === 'true';
 
 console.log('API_KEY_NAME', API_KEY_NAME);
 console.log('API_KEY_VALUE', API_KEY_VALUE);
+console.log('TLS_PASSTHROUGH', TLS_PASSTHROUGH);
 
 let validCertificates = JSON.parse(fs.readFileSync('./validCertificates.json'));
 
@@ -120,7 +105,7 @@ const syncCertificate = async (req, res) => {
     }
 }
 
-const validateApiKey = async (req, res, next) => {
+const validateAPIKey = async (req, res, next) => {
     try {
         if (!req.headers[API_KEY_NAME] || req.headers[API_KEY_NAME] !== API_KEY_VALUE) {
             return res.status(401).json({
@@ -137,45 +122,26 @@ const validateApiKey = async (req, res, next) => {
     }
 }
 
-const validateClientCert = async (req, res, next) => {
-    const cert = req.connection.getPeerCertificate()
-    if (!cert || !cert.fingerprint256) {
-        return res
-        .status(401)
-        .json({ success: false, message: 'Certificate is required.' });
-    }
-    const certificateId = cert.fingerprint256.replace(/\:/g,'').toLowerCase();
-
-    if (validCertificates[certificateId]) {
-        console.log(`Client certificate: ${certificateId} : ${validCertificates[certificateId]} authorized.`);
-        next();
-    } else {
-        return res
-        .status(401)
-        .json({ success: false, message: 'Certificate not in valid cert list.' });
-    }
-}
-
-const validateAPIKeyOrCert = async (req, res, next) => {
-    const apiKeyName = req.headers[API_KEY_NAME];
-    const { deviceId } = req.params;
-    if (apiKeyName) {
-        return validateApiKey(req, res, next);
-    } else if (deviceId) {
-        return validateClientCertAndDeviceId(req, res, next);
-    } else {
-        return validateClientCert(req, res, next);
-    }
-};
-
 const validateClientCertAndDeviceId = async (req, res, next) => {
-    const cert = req.connection.getPeerCertificate()
-    if (!cert || !cert.fingerprint256) {
+    let cert;
+    let certFingerprint;
+    if (TLS_PASSTHROUGH) {
+        cert = req.connection.getPeerCertificate();
+        certFingerprint = cert.fingerprint256;
+    } else {
+        const nginxClientCert = req.headers['x-ssl-client-cert'];
+        cert = decodeURIComponent(nginxClientCert);
+        let baseString = cert.match(/-----BEGIN CERTIFICATE-----\s*([\s\S]+?)\s*-----END CERTIFICATE-----/i);
+        let rawCert = Buffer.from(baseString[1], 'base64');
+        certFingerprint = crypto.createHash('sha256').update(rawCert).digest('hex');
+    }
+
+    if (!cert || !certFingerprint) {
         return res
         .status(401)
         .json({ success: false, message: 'Certificate is required.' });
     }
-    const certificateId = cert.fingerprint256.replace(/\:/g,'').toLowerCase();
+    const certificateId = certFingerprint.replace(/\:/g,'').toLowerCase();
 
     if (!validCertificates[certificateId]) {
         return res
@@ -183,7 +149,7 @@ const validateClientCertAndDeviceId = async (req, res, next) => {
         .json({ success: false, message: 'Certificate not in valid cert list.' });
     }
 
-    const { deviceId } = req.params;
+    const { deviceId } = req.params || req.body.uid;
     if (deviceId && validCertificates[certificateId] !== deviceId) {
         return res
         .status(401)
@@ -230,21 +196,20 @@ const statusData = async (req, res, next) => {
 }
 
 /****************************
- * Event methods *
+ * Server to Server APIs *
  ****************************/
+// use /devicecert if you want to use your own CA to sign the device certificate
+router.post('/devicecert', validateAPIKey, signCertificate);
+// use /syncdevicecert if you want to use AWS IoT Core to sign the device certificate
+router.post('/syncdevicecert', validateAPIKey, syncCertificate);
+router.post('/forwardstatus', validateAPIKey, statusData);
 
-router.post('/devicecert', validateAPIKeyOrCert, signCertificate);
-router.post('/syncdevicecert', validateAPIKeyOrCert, syncCertificate);
-
-router.post('/forwardtelemetry', validateAPIKeyOrCert, telemetryData);
-router.post('/forwardstatus', validateAPIKeyOrCert, statusData);
-
-router.post('/devicetelemetry/:deviceId', validateAPIKeyOrCert, telemetryData);
-router.post('/devicetelemetry', validateAPIKeyOrCert, telemetryData);
+/****************************
+ * Device to Server APIs *
+ ****************************/
+router.post('/devicetelemetry/:deviceId', validateClientCertAndDeviceId, telemetryData);
+router.post('/devicetelemetry', validateClientCertAndDeviceId, telemetryData);
 
 app.use('/', router);
 
-// Export the app object. When executing the application local this does nothing. However,
-// to port it to AWS Lambda we will create a wrapper around that will load the app from
-// this file
 module.exports = app;

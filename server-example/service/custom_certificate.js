@@ -3,8 +3,8 @@ const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
-const caCertificatePem = fs.readFileSync('./cert_ca/ca.crt');
-const caPrivateKeyPem = fs.readFileSync('./cert_ca/ca.key');  
+const caCertificatePem = fs.readFileSync('./sign_device_cert_ca/ca.crt');
+const caPrivateKeyPem = fs.readFileSync('./sign_device_cert_ca/ca.key');  
 
 function generateCustomKeysAndCertificate(deviceId) {
   const attrs = [
