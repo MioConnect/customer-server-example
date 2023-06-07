@@ -132,8 +132,10 @@ const validateClientCertAndDeviceId = async (req, res, next) => {
         const nginxClientCert = req.headers['x-ssl-client-cert'];
         cert = decodeURIComponent(nginxClientCert);
         let baseString = cert.match(/-----BEGIN CERTIFICATE-----\s*([\s\S]+?)\s*-----END CERTIFICATE-----/i);
-        let rawCert = Buffer.from(baseString[1], 'base64');
-        certFingerprint = crypto.createHash('sha256').update(rawCert).digest('hex');
+        if (baseString) {
+            const rawCert = Buffer.from(baseString[1], 'base64');
+            certFingerprint = crypto.createHash('sha256').update(rawCert).digest('hex');
+        }
     }
 
     if (!cert || !certFingerprint) {
