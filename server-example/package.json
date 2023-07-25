@@ -22,7 +22,7 @@
         "uuid": "^3.3.2"
     },
     "scripts": {
-        "start-tcp-tls": "cross-env TLS_PASSTHROUGH=true API_KEY_NAME=api-key-name API_KEY_VALUE=api-key-value node https.server.js",
-        "start-http-tls": "cross-env TLS_PASSTHROUGH=false API_KEY_NAME=api-key-name API_KEY_VALUE=api-key-value node http.server.js"
+        "start-tcp-tls": "cross-env TLS_PASSTHROUGH=true API_KEY_NAME=api-key-name API_KEY_VALUE=api-key-value node index.js",
+        "start-http-tls": "cross-env TLS_PASSTHROUGH=false API_KEY_NAME=api-key-name API_KEY_VALUE=api-key-value node index.js"
     }
 }

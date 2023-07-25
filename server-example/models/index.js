@@ -25,7 +25,7 @@ for (let id of Object.keys(dbInstance.models)) {
     } 
 }
 
-async function init() {
+async function initDB() {
     await dbInstance.authenticate();
     const alter = process.env.ALTER_DB === 'true';
     await dbInstance.sync({
@@ -37,5 +37,5 @@ async function init() {
 module.exports = {
     MessageStatus,
     dbInstance,
-    init,
+    initDB,
 };
