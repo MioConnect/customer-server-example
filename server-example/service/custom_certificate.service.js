@@ -10,11 +10,11 @@ function generateCustomKeysAndCertificate(deviceId) {
   const attrs = [
     {
       name: 'commonName',
-      value: 'LSR-Device-' + deviceId,
+      value: 'Transtek-Device-' + deviceId,
     },
     {
       name: 'organizationName',
-      value: 'LSR',
+      value: 'Transtek',
     },
   ];
 

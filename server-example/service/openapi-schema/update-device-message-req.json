@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "properties": {
+        "deviceId": {
+            "type": "string",
+            "description": "The ID of the device"
+        },
+        "messageId": {
+            "type": "string",
+            "description": "The ID of the message"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status of the message",
+            "enum": [
+                "downloaded",
+                "read"
+            ]
+        }
+    },
+    "required": [
+        "deviceId",
+        "messageId",
+        "status"
+    ]
+}

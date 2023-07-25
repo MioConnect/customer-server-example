@@ -1,0 +1,32 @@
+{
+    "type": "object",
+    "properties": {
+        "certificateId": {
+            "type": "string",
+            "description": "The ID value of the certificate, sha256 fingerprint of the certificate"
+        },
+        "certificatePem": {
+            "type": "string",
+            "description": "The content of the certificate in PEM format"
+        },
+        "keyPair": {
+            "type": "object",
+            "properties": {
+                "publicKey": {
+                    "type": "string",
+                    "description": "The content of the public key"
+                },
+                "privateKey": {
+                    "type": "string",
+                    "description": "The content of the private key"
+                }
+            },
+            "required": ["publicKey", "privateKey"]
+        },
+        "rootCertPem": {
+            "type": "string",
+            "description": "The content of the root certificate in PEM format"
+        }
+    },
+    "required": ["certificateId", "certificatePem", "keyPair", "rootCertPem"]
+}

@@ -8,6 +8,7 @@ const path = require('path');
 const app = express();
 const service_handler = require('./service/app.js');
 const crypto = require('crypto');
+const { init } = require('./models/index.js');
 
 const PORT = process.env.PORT;
 
@@ -20,3 +21,4 @@ app.use('/', service_handler);
 const port = PORT || 3030;
 app.listen(port);
 console.log(`Listening: http://localhost:${port}`);
+init();

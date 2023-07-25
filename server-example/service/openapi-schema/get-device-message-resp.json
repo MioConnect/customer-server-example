@@ -1,0 +1,44 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "description": "The ID of the message"
+        },
+        "deviceId": {
+            "type": "string",
+            "description": "The ID of the device"
+        },
+        "from": {
+            "type": "string",
+            "description": "The sender of the message"
+        },
+        "subject": {
+            "type": "string",
+            "description": "The subject of the message"
+        },
+        "content": {
+            "type": "string",
+            "description": "The content of the message"
+        },
+        "downloadedAt": {
+            "type": "integer",
+            "description": "The Unix timestamp when the message was downloaded",
+            "nullable": true
+        },
+        "readAt": {
+            "type": "integer",
+            "description": "The Unix timestamp when the message was read",
+            "nullable": true
+        }
+    },
+    "required": [
+        "id",
+        "deviceId",
+        "from",
+        "subject",
+        "content",
+        "downloadedAt",
+        "readAt"
+    ]
+}

@@ -8,6 +8,7 @@ const path = require('path');
 const app = express();
 const service_handler = require('./service/app.js');
 const crypto = require('crypto');
+const { init } = require('./models/index.js');
 
 const PORT = process.env.PORT;
 const cert = fs.readFileSync('./localhost-ssl-certs/fullchain.cer');
@@ -31,3 +32,4 @@ const server = https.createServer(options, app);
 const port = 3030;
 server.listen(port);
 console.log(`Listening: https://localhost:${port}`);
+init();
