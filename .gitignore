@@ -1,3 +1,5 @@
 node_modules/
 */package-lock.json
 access.log
+app.log
+database.sqlite

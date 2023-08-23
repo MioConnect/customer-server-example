@@ -1,0 +1,27 @@
+{
+    "type": "object",
+    "properties": {
+        "deviceId": {
+            "type": "string",
+            "description": "The ID of the device"
+        },
+        "createdAt": {
+            "type": "integer",
+            "description": "The Unix timestamp in seconds when the data is transfered to MioConnect"
+        },
+        "data": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "A JSON object containing the telemetry data from the device"
+        },
+        "isTest": {
+            "type": "boolean",
+            "description": "A flag indicating whether this is a mock data or not"
+        },
+        "modelNumber": {
+            "type": "string",
+            "description": "The model number of the device"
+        }
+    },
+    "required": ["deviceId", "createdAt", "data", "isTest", "modelNumber"]
+}
