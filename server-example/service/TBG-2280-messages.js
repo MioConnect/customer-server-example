@@ -111,6 +111,7 @@ async function getDeviceMessage(req, res, next) {
         from: messages.from,
         subject: messages.subject,
         content: messages.content,
+        createdAt: messages.createdAt? moment(messages.createdAt).unix(): null,
         downloadedAt: messages.downloadedAt ? moment(messages.downloadedAt).unix() : null,
         readAt: messages.readAt ? moment(messages.readAt).unix() : null,
     }
