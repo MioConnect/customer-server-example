@@ -98,7 +98,7 @@ async function getDeviceMessage(req, res, next) {
             deviceId,
             status: MessageStatus.active,
         },
-        order: [['createdAt', 'DESC']],
+        order: [['createdAt', 'ASC']],
     });
 
     if (!messages) {
