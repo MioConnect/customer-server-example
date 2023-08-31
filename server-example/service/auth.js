@@ -30,10 +30,7 @@ const validateAPIKeyOrCert = async (req, res, next) => {
 
 const validateClientCertAndDeviceId = async (req, res, next) => {
     // uid is for backward compatibility
-    const deviceId  = req.params?.deviceId || req.body?.deviceId || req.body?.uid || req.query?.deviceId;
-    if (!deviceId) {
-        throw new APIError(401, 'Device ID is required in path or body or query string');
-    }
+    const deviceId  = req.params?.deviceId || req.body?.deviceId || req.body?.uid || req.body?.sn || req.query?.deviceId;
 
     let cert;
     let certFingerprint;
@@ -56,15 +53,24 @@ const validateClientCertAndDeviceId = async (req, res, next) => {
     if (!cert || !certFingerprint) {
         throw new APIError(401, 'Certificate is required');
     }
-    const certificateFingerprint = certFingerprint.replace(/\:/g,'').toLowerCase();
+    const certificateFingerprintFromDevice = certFingerprint.replace(/\:/g,'').toLowerCase();
 
-    const device = await Device.findOne({ where: { id: deviceId, status: true } });
-    if (!device) {
-        throw new APIError(401, `Device ${deviceId} not in whitelist`);
+    const whereCondition = {
+        status: true,
+    };
+    if (deviceId) {
+        whereCondition.id = deviceId;
     }
-
-    if (device.certificateFingerprint !== certificateFingerprint) {
-        throw new APIError(401, `Device ${deviceId} certificate fingerprint mismatch.`);
+    if (certificateFingerprintFromDevice) {
+        whereCondition.certificateFingerprint = certificateFingerprintFromDevice;
+    }
+    const device = await Device.findOne({ where: whereCondition });
+    if (!device) {
+        if (deviceId) {
+            throw new APIError(401, `Device certificate ${deviceId} not in whitelist or certificate mismatch.`);
+        } else {
+            throw new APIError(401, `Device certificate ${certificateFingerprintFromDevice} not in whitelist.`);
+        }
     }
     next();
 }

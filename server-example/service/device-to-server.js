@@ -10,7 +10,7 @@ const { validateAPIKeyOrCert, validateClientCertAndDeviceId } = require('./auth.
 
 const telemetryData = async (req, res, next) => {
     const { body } = req;
-    logger.debug(`Device telemetry data: ${JSON.stringify(body)})`);
+    logger.debug(`Device telemetry data: ${JSON.stringify(body)}`);
     const result = {
         success: true
     }
