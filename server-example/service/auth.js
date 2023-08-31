@@ -67,7 +67,7 @@ const validateClientCertAndDeviceId = async (req, res, next) => {
     const device = await Device.findOne({ where: whereCondition });
     if (!device) {
         if (deviceId) {
-            throw new APIError(401, `Device certificate ${deviceId} not in whitelist or certificate mismatch.`);
+            throw new APIError(401, `Device ${deviceId} not in whitelist or certificate mismatch.`);
         } else {
             throw new APIError(401, `Device certificate ${certificateFingerprintFromDevice} not in whitelist.`);
         }
