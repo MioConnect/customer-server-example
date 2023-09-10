@@ -51,10 +51,16 @@ const syncCertificate = async (req, res) => {
     }
     const { deviceId, modelNumber, certificateId, certificatePem } = body;
     logger.debug(`Synchronizing certificate from MioConnect ${deviceId} (${modelNumber})`);
+    const adminUser = await User.findOne({
+        where: {
+            username: 'admin@mio-labs.com',
+        },
+    });
     await Device.upsert({
         id: deviceId,
         modelNumber,
         certificateFingerprint: certificateId,
+        userId: adminUser.id,
     });
     logger.debug(`Saved sync cert ${certificateId}: ${deviceId} to validCertificates`);
     
