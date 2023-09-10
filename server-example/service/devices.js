@@ -13,7 +13,7 @@ const { APIError } = require('./api-error.js');
 const assignDeviceReqSchema = require('./openapi-schema/assign-device-req.json');
 
 async function listDevices(req, res, next) {
-    const { limit = 10, offset = 0, userId } = req.query;
+    const { current, pageSize, userId } = req.query;
     const tokenData = req.tokenData;
     const where = {
         status: true
@@ -27,10 +27,18 @@ async function listDevices(req, res, next) {
         where.userId = tokenData.userId;
     }
 
+    const limit = pageSize ? parseInt(pageSize) : 10;
+    const offset = current ? parseInt(current - 1) * limit : 0;
+
     const deviceResult = await Device.findAndCountAll({
         limit,
         offset,
         where: where,
+        include: [{
+            model: User,
+            attributes: ['id', 'username'],
+            required: false,
+        }],
     });
     res.json(deviceResult);
 }
@@ -61,10 +69,21 @@ async function assignDevice(req, res, next) {
         throw new APIError(400, 'User not found');
     }
 
-    device.userId = tokenData.userId;
+    device.userId = user.id;
     await device.save();
+    const newDevice = await Device.findOne({
+        where: {
+            id: deviceId,
+        },
+        include: [{
+            model: User,
+            attributes: ['id', 'username'],
+            required: false,
+        }],
+    });
     res.json({
         success: true,
+        device: newDevice,
     });
 }
 router.post('/assigndevice', authUserToken, assignDevice);

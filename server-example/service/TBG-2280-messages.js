@@ -9,7 +9,7 @@ const ajv = new AJV();
 const Sequelize = require('sequelize');
 const { dbInstance, MessageStatus } = require('../models/index.js');
 const { Device, Message } = dbInstance.models;
-const { validateAPIKeyOrCert, validateClientCertAndDeviceId } = require('./auth.js');
+const { validateAPIKeyOrCert, validateClientCertAndDeviceId, authUserToken, createToken } = require('./auth.js');
 const { APIError } = require('./api-error.js');
 
 const getDeviceMessageRespSchema = require('./openapi-schema/get-device-message-resp.json');
@@ -17,10 +17,14 @@ const updateDeviceMessageReqSchema = require('./openapi-schema/update-device-mes
 
 async function createDeviceMessage(req, res, next) {
     const { deviceId, from, subject, content } = req.body;
+    const tokenData = req.tokenData;
 
     const device = await Device.findOne({ where: { id: deviceId } });
     if (!device) {
         throw new APIError(400, 'Device not found');
+    }
+    if (device.userId !== tokenData.userId) {
+        throw new APIError(403, 'Permission denied');
     }
 
     const message = await Message.create({
@@ -34,7 +38,10 @@ async function createDeviceMessage(req, res, next) {
 }
 
 async function listDeviceMessage(req, res, next) {
-    const { deviceId } = req.query;
+    const { current, pageSize, deviceId } = req.query;
+    if (!deviceId) {
+        throw new APIError(400, 'Missing deviceId in query string');
+    }
     const device = await Device.findOne({
         where: { id: deviceId },
     });
@@ -42,7 +49,12 @@ async function listDeviceMessage(req, res, next) {
         throw new APIError(400, 'Device not found');
     }
 
-    const messages = await Message.findAll({
+    const limit = pageSize ? parseInt(pageSize) : 10;
+    const offset = current ? parseInt(current - 1) * limit : 0;
+
+    const messages = await Message.findAndCountAll({
+        limit,
+        offset,
         where: {
             deviceId,
             status: {
@@ -128,8 +140,8 @@ async function getDeviceMessage(req, res, next) {
  ****************************/
 // /messages APIs are for RPM service provider
 // you could change the implementation according to your needs.
-router.post('/messages', validateAPIKeyOrCert, createDeviceMessage);
-router.get('/messages', validateAPIKeyOrCert, listDeviceMessage);
+router.post('/messages', authUserToken, createDeviceMessage);
+router.get('/messages', authUserToken, listDeviceMessage);
 // // APIs for device integration
 router.post('/devicemessages', validateClientCertAndDeviceId, updateDeviceMessage);
 router.get('/devicemessages', validateClientCertAndDeviceId, getDeviceMessage);

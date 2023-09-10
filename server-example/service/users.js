@@ -35,12 +35,15 @@ async function createUser(req, res, next) {
 }
 
 async function listUser(req, res, next) {
-    const { limit = 10, offset = 0 } = req.query;
+    const { current, pageSize } = req.query;
     const tokenData = req.tokenData;
 
     if (tokenData.role !== 'admin') {
         throw new APIError(403, 'Permission denied');
     }
+    const limit = pageSize ? parseInt(pageSize) : 10;
+    const offset = current ? parseInt(current - 1) * limit : 0;
+
     const userResult = await User.findAndCountAll({
         limit,
         offset,

@@ -7,6 +7,10 @@ module.exports = (sequelize) => {
                 sourceKey: 'id',
                 foreignKey: 'deviceId',
             });
+            Device.belongsTo(models.User, {
+                sourceKey: 'id',
+                foreignKey: 'userId',
+            });
         }
     }
     Device.init({
