@@ -1,0 +1,13 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "deviceId": {
+            "type": "string"
+        }
+    },
+    "required": ["username", "deviceId"]
+}

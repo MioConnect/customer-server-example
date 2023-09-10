@@ -1,44 +1,37 @@
 'use strict';
 const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
-    class Device extends Model {
+    class User extends Model {
         static associate(models) {
-            Device.hasMany(models.Message, {
+            User.hasMany(models.Device, {
                 sourceKey: 'id',
-                foreignKey: 'deviceId',
+                foreignKey: 'userId',
             });
         }
     }
-    Device.init({
+    User.init({
         id: {
-            type: DataTypes.STRING,
+            type: DataTypes.UUID,
             unique: 'id',
             allowNull: false,
             primaryKey: true,
-            comment: 'Device ID, could be IMEI or Serial Number, currently most Transtek devices use Serial Number as Device ID.'
+            defaultValue: DataTypes.UUIDV4,
+            comment: 'User ID'
         },
-        serialNumber: {
+        username: {
             type: DataTypes.STRING,
             defaultValue: '',
-            allowNull: true,
+            allowNull: false,
         },
-        imei: {
+        password: {
             type: DataTypes.STRING,
             defaultValue: '',
-            allowNull: true,
+            allowNull: false,
         },
-        modelNumber: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        certificateFingerprint: {
+        role: {
             type: DataTypes.STRING,
             defaultValue: '',
-            allowNull: true,
-        },
-        userId: {
-            type: DataTypes.UUID,
-            allowNull: true,
+            allowNull: false,
         },
         status: {
             type: DataTypes.TINYINT,
@@ -47,9 +40,9 @@ module.exports = (sequelize) => {
         },
     }, {
         sequelize,
-        modelName: 'Device',
+        modelName: 'User',
         createdAt: 'createdAt',
         updatedAt: 'updatedAt',
     });
-    return Device;
+    return User;
 }

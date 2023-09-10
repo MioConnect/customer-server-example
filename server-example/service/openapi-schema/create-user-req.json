@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "password": {
+            "type": "string",
+            "pattern": "^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])(?=.*[a-z])[0-9A-Za-z!@#$%^&*]{8,}$"
+        }
+    },
+    "required": ["username", "password"]
+}

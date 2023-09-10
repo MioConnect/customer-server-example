@@ -1,6 +1,9 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const Sequelize = require('sequelize');
+const uuid = require('uuid');
+const jwt = require('jsonwebtoken');
+
 const { dbInstance } = require('../models/index.js');
 const { Device, Message } = dbInstance.models;
 const { APIError } = require('./api-error.js');
@@ -11,6 +14,10 @@ const API_KEY_VALUE = process.env.API_KEY_VALUE;
 // if true, the load balancer (NGINX, AWS ALB) will pass TCP traffic to the instance without decrypting it.
 // if false, the load balancer decrypts the traffic and forwards it to the instance as HTTP.
 const TLS_PASSTHROUGH = process.env.TLS_PASSTHROUGH === 'true';
+
+const tokenSecret = 'my-secret-you-will-never-guess';
+const accessTokenExpireIn = '2h';
+const refreshTokenExpireIn = '30 days';
 
 const validateAPIKey = async (req, res, next) => {
     if (!req.headers[API_KEY_NAME] || req.headers[API_KEY_NAME] !== API_KEY_VALUE) {
@@ -75,8 +82,70 @@ const validateClientCertAndDeviceId = async (req, res, next) => {
     next();
 }
 
+function createToken(data, options) {
+    delete data.exp;
+    delete data.iat;
+    const _accessTokenData = {
+        ...data,
+        TokenType: 'user',
+    }
+    const _refreshTokenData = {
+        ...data,
+        TokenType: 'refresh',
+    }
+    const _accessTokenOptions = {
+        ...options,
+        expiresIn: accessTokenExpireIn,
+        jwtid: uuid.v4(),
+    }
+    const _refreshTokenOptions = {
+        ...options,
+        expiresIn: refreshTokenExpireIn,
+        jwtid: uuid.v4(),
+    }
+    return {
+        accessToken: jwt.sign(
+            _accessTokenData,
+            tokenSecret,
+            _accessTokenOptions
+        ),
+        refreshToken: jwt.sign(
+            _refreshTokenData,
+            tokenSecret,
+            _refreshTokenOptions
+        )
+    }
+}
+
+const authUserToken = async (req, res, next) => {
+    let token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+        throw new APIError(401, 'Invalid token');
+    }
+    const decoded = jwt.decode(token);
+    let claim;
+    try {
+        claim = jwt.verify(token, tokenSecret);
+    } catch (e) {
+        if (e.name === 'TokenExpiredError' &&
+            (decoded.TokenType === 'refresh')) {
+            throw new APIError(401, 'Refresh token expired');
+        }
+        if (e.name === 'TokenExpiredError' && decoded.TokenType === 'user') {
+            throw new APIError(401, 'Access token expired');
+        }
+    }
+    if (!claim) {
+        throw new APIError(401, 'Invalid token');
+    }
+    req.tokenData = claim;
+    return next();
+}
+
 module.exports = {
     validateAPIKeyOrCert,
     validateClientCertAndDeviceId,
     validateAPIKey,
+    createToken,
+    authUserToken,
 }

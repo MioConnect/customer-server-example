@@ -17,12 +17,29 @@ const dbInstance = new Sequelize(dbOptions);
 
 require('./Device.js')(dbInstance);
 require('./Message.js')(dbInstance);
+require('./User.js')(dbInstance);
 
 for (let id of Object.keys(dbInstance.models)) {
     let model = dbInstance.models[id];
     if (typeof(model.associate) == 'function') {
         model.associate(dbInstance.models);
     } 
+}
+
+async function initSuperUser() {
+    const { User } = dbInstance.models;
+    let superUser = await User.findOne({
+        where:{
+            username: 'admin@mio-labs.com'
+        }
+    })
+    if (!superUser) {
+        superUser = await User.create({
+            username: 'admin@mio-labs.com',
+            password: 'User@123',
+            role: 'admin',
+        });
+    }
 }
 
 async function initDB() {
@@ -32,6 +49,7 @@ async function initDB() {
         sync: false,
         alter
     });
+    await initSuperUser();
 }
 
 module.exports = {

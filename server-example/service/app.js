@@ -12,6 +12,8 @@ const logger = log4js.getLogger();
 const serverToServerAPIRouter = require('./server-to-server.js');
 const deviceToServerAPIRouter = require('./device-to-server.js');
 const TBG2280MessagesAPIRouter = require('./TBG-2280-messages.js');
+const usersAPIRouter = require('./users.js');
+const devicesAPIRouter = require('./devices.js');
 const { APIError } = require('./api-error.js');
 
 // declare a new express app
@@ -33,6 +35,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', serverToServerAPIRouter);
 app.use('/', deviceToServerAPIRouter);
 app.use('/', TBG2280MessagesAPIRouter);
+app.use('/', usersAPIRouter);
+app.use('/', devicesAPIRouter);
+
 app.use((error, req, res, next) => {
     logger.error(`API ERROR: ${req.originalUrl} ${error.message}`);
     if (error instanceof APIError) {
