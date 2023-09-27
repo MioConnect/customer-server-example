@@ -13,7 +13,7 @@ const { APIError } = require('./api-error.js');
 const assignDeviceReqSchema = require('./openapi-schema/assign-device-req.json');
 
 async function listDevices(req, res, next) {
-    const { current, pageSize, userId } = req.query;
+    const { current, pageSize, userId, id } = req.query;
     const tokenData = req.tokenData;
     const where = {
         status: true
@@ -25,6 +25,10 @@ async function listDevices(req, res, next) {
 
     if (tokenData.role !== 'admin') {
         where.userId = tokenData.userId;
+    }
+
+    if (id) {
+        where.id = id;
     }
 
     const limit = pageSize ? parseInt(pageSize) : 10;
