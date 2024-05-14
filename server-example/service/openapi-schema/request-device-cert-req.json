@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "deviceId": {
+            "type": "string",
+            "description": "The ID of the device"
+        },
+        "modelNumber": {
+            "type": "string",
+            "description": "The model number of the device"
+        },
+        "isTest": {
+            "type": "boolean",
+            "description": "A flag indicating whether this is a mock request or not"
+        }
+    },
+    "required": ["deviceId", "modelNumber", "isTest"]
+}

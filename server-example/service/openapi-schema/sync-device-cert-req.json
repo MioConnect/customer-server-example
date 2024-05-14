@@ -1,0 +1,55 @@
+{
+    "type": "object",
+    "properties": {
+        "deviceId": {
+            "type": "string",
+            "description": "The device ID, usually serail number"
+        },
+        "modelNumber": {
+            "type": "string",
+            "description": "The device model number"
+        },
+        "certificateId": {
+            "type": "string",
+            "description": "The ID value of the certificate, sha 256 fingerprint of the certificate"
+        },
+        "certificatePem": {
+            "type": "string",
+            "description": "The content of the device certificate in PEM format"
+        },
+        "keyPair": {
+            "type": "object",
+            "properties": {
+                "publicKey": {
+                    "type": "string",
+                    "description": "The content of the device certificate public key"
+                },
+                "privateKey": {
+                    "type": "string",
+                    "description": "The content of the device certificate private key"
+                }
+            }
+        },
+        "rootCertPem": {
+            "type": "string",
+            "description": "The content of the MQTTs server SSL certificate root CA certificate in PEM format"
+        },
+        "createdAt": {
+            "type": "integer",
+            "description": "The Unix timestamp when the device was created"
+        },
+        "isTest": {
+            "type": "boolean",
+            "description": "A flag indicating whether this is a mock request or not"
+        }
+    },
+    "required": [
+        "deviceId",
+        "modelNumber",
+        "certificateId",
+        "certificatePem",
+        "rootCertPem",
+        "createdAt",
+        "isTest"
+    ]
+}

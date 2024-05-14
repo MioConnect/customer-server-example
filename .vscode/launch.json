@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "http.server.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\server-example\\http.server.js",
+            "cwd": "${workspaceFolder}\\server-example",
+            "env": {
+                "API_KEY_NAME": "api-key-name",
+                "API_KEY_VALUE": "api-key-value",
+                "TLS_PASSTHROUGH": "false"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "https.server.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\server-example\\https.server.js",
+            "cwd": "${workspaceFolder}\\server-example",
+            "env": {
+                "API_KEY_NAME": "api-key-name",
+                "API_KEY_VALUE": "api-key-value",
+                "TLS_PASSTHROUGH": "true",
+            }
+        }
+    ]
+}
