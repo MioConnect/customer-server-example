@@ -7,7 +7,7 @@ const AJV = require('ajv');
 const ajv = new AJV();
 const Sequelize = require('sequelize');
 const { dbInstance } = require('../models/index.js');
-const { Device, User } = dbInstance.models;
+const { Device, User, Message } = dbInstance.models;
 const generateCustomKeysAndCertificate = require('./custom_certificate.service.js');
 const { validateAPIKeyOrCert, validateClientCertAndDeviceId } = require('./auth.js');
 const { APIError } = require('./api-error.js');
@@ -64,6 +64,15 @@ const syncCertificate = async (req, res) => {
     });
     logger.debug(`Saved sync cert ${certificateId}: ${deviceId} to validCertificates`);
     
+    if (modelNumber === 'TBG2280A') {
+        const message = await Message.create({
+            deviceId,
+            from: 'System',
+            subject: 'Hello',
+            content: 'Hello from System!',
+        });
+    }
+
     const result = {
         success: true
     }
