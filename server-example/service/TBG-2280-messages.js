@@ -69,7 +69,7 @@ async function listDeviceMessage(req, res, next) {
 
 async function updateDeviceMessage(req, res, next) {
     const { body } = req;
-    const { deviceId, messageId, status } = body;
+    const { deviceId, messageId, status, response } = body;
     const valid = ajv.validate(updateDeviceMessageReqSchema, body);
     if (!valid) {
         throw new APIError(400, ajv.errorsText());
@@ -90,7 +90,11 @@ async function updateDeviceMessage(req, res, next) {
         throw new APIError(400, 'Invalid status');
     }
 
+    logger.debug(`Update message ${messageId} status to ${status}`);
+    logger.debug(`Response: ${response}`);
+
     message.status = statusCode;
+    message.response = response;
     await message.save();
 
     res.json({

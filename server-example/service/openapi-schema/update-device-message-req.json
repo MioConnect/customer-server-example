@@ -16,6 +16,10 @@
                 "downloaded",
                 "read"
             ]
+        },
+        "response": {
+            "type": "string",
+            "description": "The response message"
         }
     },
     "required": [

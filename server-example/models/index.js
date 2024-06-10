@@ -18,6 +18,7 @@ const dbInstance = new Sequelize(dbOptions);
 require('./Device.js')(dbInstance);
 require('./Message.js')(dbInstance);
 require('./User.js')(dbInstance);
+require('./Telemetry.js')(dbInstance);
 
 for (let id of Object.keys(dbInstance.models)) {
     let model = dbInstance.models[id];
