@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
         },
         data: {
             type: DataTypes.JSON,
-            defaultValue: '',
+            defaultValue: null,
             allowNull: false,
         },
         status: {

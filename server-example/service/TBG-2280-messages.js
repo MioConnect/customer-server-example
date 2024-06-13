@@ -16,7 +16,7 @@ const getDeviceMessageRespSchema = require('./openapi-schema/get-device-message-
 const updateDeviceMessageReqSchema = require('./openapi-schema/update-device-message-req.json');
 
 async function createDeviceMessage(req, res, next) {
-    const { deviceId, from, subject, content } = req.body;
+    const { deviceId, from, subject, content, options } = req.body;
     const tokenData = req.tokenData;
 
     const device = await Device.findOne({ where: { id: deviceId } });
@@ -32,6 +32,7 @@ async function createDeviceMessage(req, res, next) {
         from,
         subject,
         content,
+        options: options || ['yes', 'no']
     });
 
     res.json(message);
@@ -85,16 +86,19 @@ async function updateDeviceMessage(req, res, next) {
         throw new APIError(400, 'Message not found');
     }
 
-    const statusCode = MessageStatus[status.toLowerCase()];
-    if (!statusCode) {
-        throw new APIError(400, 'Invalid status');
+    if (status) {
+        const statusCode = MessageStatus[status.toLowerCase()];
+        if (!statusCode) {
+            throw new APIError(400, 'Invalid status');
+        }
+        message.status = statusCode;
+    }
+    if (response) {
+        message.response = response;
     }
 
     logger.debug(`Update message ${messageId} status to ${status}`);
     logger.debug(`Response: ${response}`);
-
-    message.status = statusCode;
-    message.response = response;
     await message.save();
 
     res.json({

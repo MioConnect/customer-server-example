@@ -41,12 +41,14 @@ const telemetryData = async (req, res, next) => {
         id: telemetry.id,
     };
 
-    if (dataType === 'bgm_gen2_measure') {
+    if (dataType === 'bgm_gen2_measure' && body.instant) {
         // generate mock response for BGM Gen2
+        const { data, low, mid , high } = body;
+        // check data is in which range
+        const bgLevel = data < low ? 'low' : data < mid ? 'mid' : data < high ? 'high' : 'very high';
         responseData.messages = {
             'title': 'test nudge',
-            'content': `test nudge for measurement at ${tsMoment}`,
-            'options': ['yes', 'no']
+            'content': `test nudge for measurement at ${tsMoment}, the blood glucose level is ${bgLevel}`,
         };
     }
 

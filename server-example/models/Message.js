@@ -38,10 +38,15 @@ module.exports = (sequelize) => {
             defaultValue: '',
             allowNull: false,
         },
+        options: {
+            type: DataTypes.JSON,
+            defaultValue: null,
+            allowNull: true,
+        },
         response: {
             type: DataTypes.STRING,
             defaultValue: '',
-            allowNull: false,
+            allowNull: true,
         },
         downloadedAt: {
             type: DataTypes.DATE,
