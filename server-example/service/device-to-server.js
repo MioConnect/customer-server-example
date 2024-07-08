@@ -41,20 +41,35 @@ const telemetryData = async (req, res, next) => {
         id: telemetry.id,
     };
 
-    if (dataType === 'bgm_gen2_measure' && body.instant) {
+    if (dataType === 'bgm_gen2_measure' && !body.backlog) {
         // generate mock response for BGM Gen2
         const { data, low, mid , high } = body;
         // check data is in which range
-        const bgLevel = data < low ? 'low' : data < mid ? 'mid' : data < high ? 'high' : 'very high';
+        const bgLevel = data < low ? 'low' : data < high ? 'mid' : 'high';
+        let title;
+        let content;
+        
+        if (bgLevel === 'low') {
+            title = 'Your BG is a little low.';
+            content = `Sorry you're not feeling well. Include some carbs in your meal and recheck after eating.`;
+        }
+        if (bgLevel === 'mid') {
+            title = 'Your BG is well within range after eating.';
+            content = `You've had a few low bloodsugars this week.`;
+        }
+        if (bgLevel === 'high') {
+            title = 'Your BG is elevated.';
+            content = `Monitor the effects of increased meds throughout the day.`;
+        }
+
         responseData.messages = {
-            'title': 'test nudge',
-            'content': `test nudge for measurement at ${tsMoment}, the blood glucose level is ${bgLevel}`,
+            'title': title,
+            'content': content,
         };
     }
 
     const result = {
-        success: true,
-        data: responseData,
+        responseData
     }
     res.json(result);
 }

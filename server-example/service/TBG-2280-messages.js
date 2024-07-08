@@ -87,11 +87,16 @@ async function updateDeviceMessage(req, res, next) {
     }
 
     if (status) {
-        const statusCode = MessageStatus[status.toLowerCase()];
-        if (!statusCode) {
+        if (!Object.values(MessageStatus).includes(status)) {
             throw new APIError(400, 'Invalid status');
         }
-        message.status = statusCode;
+        message.status = status;
+        if (status === MessageStatus.downloaded) {
+            message.downloadedAt = moment.utc();
+        }
+        if (status === MessageStatus.read) {
+            message.readAt = moment.utc();
+        }
     }
     if (response) {
         message.response = response;
@@ -131,15 +136,16 @@ async function getDeviceMessage(req, res, next) {
         from: messages.from,
         subject: messages.subject,
         content: messages.content,
+        options: messages.options,
         createdAt: messages.createdAt? moment(messages.createdAt).unix(): null,
         downloadedAt: messages.downloadedAt ? moment(messages.downloadedAt).unix() : null,
         readAt: messages.readAt ? moment(messages.readAt).unix() : null,
     }
 
-    const valid = ajv.validate(getDeviceMessageRespSchema, _message);
-    if (!valid) {
-        throw new APIError(500, ajv.errorsText());
-    }
+    // const valid = ajv.validate(getDeviceMessageRespSchema, _message);
+    // if (!valid) {
+    //     throw new APIError(500, ajv.errorsText());
+    // }
     res.json(_message);
 }
 

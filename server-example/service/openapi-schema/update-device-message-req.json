@@ -10,11 +10,11 @@
             "description": "The ID of the message"
         },
         "status": {
-            "type": "string",
+            "type": "integer",
             "description": "The status of the message",
             "enum": [
-                "downloaded",
-                "read"
+                2,
+                3
             ]
         },
         "response": {
