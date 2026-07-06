@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('https');
+const http = require('http');
 const express = require('express');
 const fs = require('fs');
 const morgan = require('morgan');
@@ -66,7 +67,11 @@ if (TLS_PASSTHROUGH) {
     server.listen(PORT);
     logger.info(`Listening: https://localhost:${PORT}`);
 } else {
-    app.listen(PORT);
+    const server = http.createServer(app);
+    server.listen(PORT);
+    server.on('clientError', (err, socket) => {
+        logger.error('http client error:', err);
+    });
     logger.info(`Listening: http://localhost:${PORT}`);
 }
 initDB();

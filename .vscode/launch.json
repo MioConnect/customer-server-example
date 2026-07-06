@@ -8,12 +8,13 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\server-example\\http.server.js",
+            "program": "${workspaceFolder}\\server-example\\index.js",
             "cwd": "${workspaceFolder}\\server-example",
             "env": {
                 "API_KEY_NAME": "api-key-name",
                 "API_KEY_VALUE": "api-key-value",
-                "TLS_PASSTHROUGH": "false"
+                "TLS_PASSTHROUGH": "false",
+                "ALTER_DB": "true"
             }
         },
         {

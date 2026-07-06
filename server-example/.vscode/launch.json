@@ -2,15 +2,34 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "http server",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\index.js",
+            "cwd": "${workspaceFolder}",
             "env": {
-                "LOGGING_LEVEL": "2"
+                "API_KEY_NAME": "api-key-name",
+                "API_KEY_VALUE": "api-key-value",
+                "TLS_PASSTHROUGH": "false",
+                "ALTER_DB": "true"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "https server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\index.js",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "API_KEY_NAME": "api-key-name",
+                "API_KEY_VALUE": "api-key-value",
+                "TLS_PASSTHROUGH": "false",
             }
         }
     ]

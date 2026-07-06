@@ -21,6 +21,17 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\devicetelemetry.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Current File",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

@@ -8,6 +8,7 @@ const router = express.Router();
 const fs = require('fs');
 const log4js = require("log4js");
 const logger = log4js.getLogger();
+const _ = require('lodash');
 
 const serverToServerAPIRouter = require('./server-to-server.js');
 const deviceToServerAPIRouter = require('./device-to-server.js');
